@@ -20,9 +20,7 @@ def show_tasks(tasks):
     print('\n To-Do List:')
     for i, task in enumerate(tasks, 1):
         print(f"{i}. {task}")
-        
     print()
-
 
 def main():
     tasks = load_tasks()
@@ -33,8 +31,7 @@ def main():
         print("2. Add Task ")
         print("3. Task Done")
         print("4. Exit Program")
-        
-        
+           
         choice = input("Choose an option (1-4): ")
         
         if choice == "1":
