@@ -49,6 +49,7 @@ Build desktop apps with native Python:
 - 🎥 How to connect VLC with Tkinter GUI
 
 🧪 Example:
+
 ```bash
 pip install python-vlc
 ```
@@ -72,6 +73,7 @@ Make your app work on all systems:
 - 📁 Organize your project files neatly
 - 📝 Create a `README.md` for documentation
 - 📋 Use `requirements.txt` to save your packages:
+
   ```bash
   pip freeze > requirements.txt
   ```
