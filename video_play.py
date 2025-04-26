@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog
 import vlc  # VLC binding for Python
 
 class VideoPlayer:
@@ -32,7 +33,16 @@ class VideoPlayer:
         self.open_button = tk.Button(controls, text="Open", command=self.open_file)
         self.open_button.pack(side=tk.LEFT)
 
-    # Placeholder functions (we’ll define them in the next step)
+    
+    def open_file(self):
+        self.video_path = filedialog.askopenfilename(
+            filetypes=[("Video files", "*.mp4 *.avi *.mkv")]
+        )
+        if self.video_path:  # If user selected a file
+            media = self.instance.media_new(self.video_path)
+            self.player.set_media(media)
+
+
     def play_video(self):
         pass
 
@@ -42,8 +52,7 @@ class VideoPlayer:
     def stop_video(self):
         pass
 
-    def open_file(self):
-        pass
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
