@@ -2,26 +2,22 @@ import tkinter as tk
 from tkinter import filedialog
 import vlc
 import os
-import platform  # ✅ For OS detection
+import platform
+import threading
+import time
 
 class VideoPlayer:
     def __init__(self, root):
         self.root = root
-        
-        # This is the title of the application
         self.root.title("Video Player")
-        
-        # This is for the size of the app
-        self.root.geometry("2000x1500")
+        self.root.geometry("1000x600")
 
         self.instance = vlc.Instance()
         self.player = self.instance.media_player_new()
 
-        # Video panel
         self.video_panel = tk.Frame(self.root)
         self.video_panel.pack(fill=tk.BOTH, expand=1)
 
-        # Controls
         controls = tk.Frame(self.root)
         controls.pack()
 
@@ -37,21 +33,29 @@ class VideoPlayer:
         self.open_button = tk.Button(controls, text="Open", command=self.open_file)
         self.open_button.pack(side=tk.LEFT)
 
-        self.video_path = None
+        # Progress bar (Scale)
+        self.progress = tk.Scale(self.root, from_=0, to=1000, orient="horizontal", length=800, showvalue=0, command=self.seek)
+        self.progress.pack()
 
-        # Update UI to ensure the panel is rendered
+        self.video_path = None
+        self.updating_slider = False  # flag to prevent circular updates
+
         self.root.update()
         self.embed_video_panel()
+
+        # Start thread to update progress bar
+        self.update_thread = threading.Thread(target=self.update_progress, daemon=True)
+        self.update_thread.start()
 
     def embed_video_panel(self):
         system = platform.system()
         video_id = self.video_panel.winfo_id()
 
-        if system == "Windows": # for Windows
+        if system == "Windows":
             self.player.set_hwnd(video_id)
-        elif system == "Linux": # For Linux
+        elif system == "Linux":
             self.player.set_xwindow(video_id)
-        elif system == "Darwin":  # For macOS
+        elif system == "Darwin":
             self.player.set_nsobject(video_id)
         else:
             print("Unsupported platform for video embedding.")
@@ -72,6 +76,25 @@ class VideoPlayer:
 
     def stop_video(self):
         self.player.stop()
+
+    def update_progress(self):
+        while True:
+            if self.player.is_playing():
+                length = self.player.get_length()  # total length in ms
+                if length > 0:
+                    time_ms = self.player.get_time()
+                    progress_value = int((time_ms / length) * 1000)
+                    self.updating_slider = True
+                    self.progress.set(progress_value)
+                    self.updating_slider = False
+            time.sleep(1)
+
+    def seek(self, val):
+        if not self.updating_slider:  # Avoid feedback loop
+            length = self.player.get_length()
+            if length > 0:
+                new_time = int((int(val) / 1000) * length)
+                self.player.set_time(new_time)
 
 if __name__ == "__main__":
     root = tk.Tk()
